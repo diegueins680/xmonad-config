@@ -1,24 +1,31 @@
 import XMonad
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Layout.Spiral
--- import XMonad.Actions.Volume
 import qualified Data.Map        as M
 import Data.Monoid (mappend)
 import Graphics.X11.ExtraTypes.XF86
 import qualified XMonad.StackSet as W
+import XMonad.Actions.MouseResize
+import XMonad.Layout.WindowArranger
+import XMonad.Hooks.ManageHelpers (isFullscreen, isDialog,  doFullFloat, doCenterFloat)
 
 myManageHook = composeAll
-               [ resource =? "gimp" --> doFloat
-               , resource =? "mplayer" --> doFloat
-               ]
+               [ resource  =? "desktop_window" --> doIgnore
+               , resource =? "gimp"            --> doFloat
+               , resource =? "mplayer"         --> doFloat
+               , className =? "terminator"     --> doShift "1:terminal"
+               , className =? "chromium"       --> doShift "2:www"
+               , className =? "tor-browser"    --> doShift "3:tor"
+               , className =? "rdesktop"       --> doShift "4:rdp"
+               , className =? "emacs"          --> doShift "5:editor"
+               , className =? "pidgin"         --> doShift "8:chat"
+               , className =? "stalonetray"    --> doIgnore
+               , isFullscreen                  --> (doF W.focusDown <+> doFullFloat)]
 
-myTerminal = "urxvt"
+myTerminal = "terminator"
 myModMask = mod4Mask
-myLayout = spiral(6/7) ||| Full
---myKeys conf@(XConfig) = fromList $
---  [
---
---  ]
+myLayout = mouseResize $ windowArrange $ layoutHook defaultConfig
+myWorkspaces = ["1:terminal","2:www","3:tor","4:rdp","5:editor","6:email","7:files","8:chat"]
 
 
 main :: IO()
@@ -27,12 +34,17 @@ main = xmonad $ewmh defaultConfig
        , terminal = myTerminal
        , layoutHook = myLayout
        , keys = myKeys
+       , workspaces = myWorkspaces
        }
 
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Start a terminal.  Terminal to start is specified by supoTerminal variable.
   [ ((modMask .|. shiftMask, xK_Return),
      spawn $ XMonad.terminal conf)
+
+  -- Close client
+  , ((modMask .|. shiftMask, xK_c),
+     kill)
 
   -- Sleep computer
   , ((modMask .|. controlMask, xK_s),
@@ -45,6 +57,14 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Use this to launch programs without a key binding.
   , ((modMask, xK_space),
      spawn supoDmenuCmd)
+
+  -- Fn key labeled with screen brightness decrease
+  , ((0, 0x1008ff03),
+     spawn "xcalib -co 90 -a")
+
+  -- Fn key labeled with screen brightness increase
+  , ((0, 0x1008ff02),
+     spawn "xcalib -c")
 
   -- Fn key labeled with mute/unmute symbol
   , ((0, 0x1008FF12),
@@ -61,11 +81,12 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Put contents from primary selection into X selection
   , ((modMask .|. shiftMask, xK_b), spawn "xsel -op | xsel -ib")
 
-  -- Decrement brightness
-  , ((0, xF86XK_KbdBrightnessDown), spawn "brightness-down")
+  -- -- Decrement brightness
+  -- , ((0, 0x1008FF04), spawn "echo 15 | sudo tee /sys/class/backlight/acpi_video0/brightness")
+  -- --  , ((0, xF86XK_KbdBrightnessUp), spawn "brightness-up")
 
-  -- Increment brightness
-  , ((0, xF86XK_KbdBrightnessUp), spawn "brightness-up")
+  -- -- Increment brightness
+  -- , ((0, 0x1008FF05), spawn "echo 100 | sudo tee /sys/class/backlight/acpi_video0/brightness")
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
