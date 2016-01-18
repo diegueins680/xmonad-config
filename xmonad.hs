@@ -64,7 +64,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Fn key labeled with screen brightness increase
   , ((0, 0x1008ff02),
-     spawn "xcalib -c")
+     spawn "xcalib -c && xbacklight = 100")
 
   -- Fn key labeled with mute/unmute symbol
   , ((0, 0x1008FF12),
