@@ -81,12 +81,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Put contents from primary selection into X selection
   , ((modMask .|. shiftMask, xK_b), spawn "xsel -op | xsel -ib")
 
-  -- -- Decrement brightness
-  -- , ((0, 0x1008FF04), spawn "echo 15 | sudo tee /sys/class/backlight/acpi_video0/brightness")
-  -- --  , ((0, xF86XK_KbdBrightnessUp), spawn "brightness-up")
+  -- -- Decrement key brightness
+  , ((0, 0x1008ff06), spawn "sudo kbdlight down")
 
-  -- -- Increment brightness
-  -- , ((0, 0x1008FF05), spawn "echo 100 | sudo tee /sys/class/backlight/acpi_video0/brightness")
+  -- -- Increment key brightness
+  , ((0, 0x1008ff05), spawn "sudo kbdlight up")
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
